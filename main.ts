@@ -1,7 +1,53 @@
-function SpawnEnemies () {
+scene.onHitWall(SpriteKind.Player, function (sprite, location) {
+    PLayerSprite.sayText("I must run through the wall")
+    pause(50)
+    if (controller.A.isPressed() && Math.percentChance(0.01)) {
+        tiles.setWallAt(tiles.getTileLocation(28, 18), false)
+        tiles.setWallAt(tiles.getTileLocation(29, 18), false)
+        PLayerSprite.sayText("BOOM")
+        info.changeLifeBy(-1)
+    }
+})
+function SpawnEnemies (num: number) {
+    if (num == 1) {
+        for (let index = 0; index <= randint(5, 10); index++) {
+            tiles.placeOnRandomTile(myEnemy._pickRandom(), sprites.dungeon.darkGroundCenter)
+        }
+    } else if (num == 2) {
+    	
+    }
+}
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
+    projectile = sprites.createProjectileFromSprite(img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . 4 4 . . . . . . . 
+        . . . . . . 4 5 5 4 . . . . . . 
+        . . . . . . 2 5 5 2 . . . . . . 
+        . . . . . . . 2 2 . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `, PLayerSprite, 50, 50)
+})
+function Breakwall (mySprite: Sprite) {
 	
 }
-let mySprite = sprites.create(img`
+info.onCountdownEnd(function () {
+    tiles.setWallAt(tiles.getTileLocation(28, 18), true)
+    tiles.setWallAt(tiles.getTileLocation(29, 18), true)
+})
+let projectile: Sprite = null
+let myEnemy: Sprite[] = []
+let PLayerSprite: Sprite = null
+PLayerSprite = sprites.create(img`
     . . . . . . . . . . . . . . . . 
     . . . . . . f f f f . . . . . . 
     . . . . f f f 2 2 f f f . . . . 
@@ -19,10 +65,11 @@ let mySprite = sprites.create(img`
     . . . . . f f f f f f f . f f . 
     . . . . . . . . . f f f . . . . 
     `, SpriteKind.Player)
-controller.moveSprite(mySprite)
+controller.moveSprite(PLayerSprite, 100, 100)
 tiles.setCurrentTilemap(tilemap`level1`)
-scene.cameraFollowSprite(mySprite)
-let myEnemy = [sprites.create(img`
+scene.cameraFollowSprite(PLayerSprite)
+myEnemy = [
+sprites.create(img`
     . . f f f . . . . . . . . . . . 
     f f f c c . . . . . . . . f f f 
     f f c c c . c c . . . f c b b c 
@@ -39,7 +86,8 @@ let myEnemy = [sprites.create(img`
     . . f 2 2 2 b b b c f . . . . . 
     . . . f f f f f f f . . . . . . 
     . . . . . . . . . . . . . . . . 
-    `, SpriteKind.Enemy), sprites.create(img`
+    `, SpriteKind.Enemy),
+sprites.create(img`
     ........................
     ........................
     ........................
@@ -64,7 +112,8 @@ let myEnemy = [sprites.create(img`
     ........................
     ........................
     ........................
-    `, SpriteKind.Enemy), sprites.create(img`
+    `, SpriteKind.Enemy),
+sprites.create(img`
     . . . . c c c c c c . . . . . . 
     . . . c 6 7 7 7 7 6 c . . . . . 
     . . c 7 7 7 7 7 7 7 7 c . . . . 
@@ -81,4 +130,25 @@ let myEnemy = [sprites.create(img`
     f 6 1 1 1 1 1 6 6 6 6 6 c f . . 
     . f 6 1 1 1 1 1 1 6 6 6 f . . . 
     . . c c c c c c c c c f . . . . 
-    `, SpriteKind.Enemy)]
+    `, SpriteKind.Enemy),
+sprites.create(img`
+    . . . . c c c c c . . . . . . . 
+    . . c c 5 5 5 5 5 c . . . . . . 
+    . c 5 5 5 5 1 f 5 5 c . . . . . 
+    c 5 5 5 5 5 f f 5 5 5 c . . . . 
+    c 5 5 5 5 5 5 5 5 5 5 5 c . . . 
+    c c b b 1 b 5 5 5 5 5 5 c . . . 
+    c 5 3 3 3 5 5 5 5 5 5 5 d c . . 
+    c 5 3 3 3 5 5 5 5 5 d d d c . . 
+    . c 5 5 5 5 b 5 5 5 d d d c . . 
+    . . c b b c 5 5 b d d d d c . . 
+    . c b b c 5 5 b b d d d d c c c 
+    . c c c c c c d d d d d d d d c 
+    . . . . c c c b 5 5 b d d d c . 
+    . . . . . c d 5 5 b b c c c . . 
+    . . . . c c c c c c c . . . . . 
+    . . . . c b b b c . . . . . . . 
+    `, SpriteKind.Player)
+]
+SpawnEnemies(game.askForNumber("Difficulty? 1-easy 2-hard", 1))
+scene.cameraShake(8, 1000)
